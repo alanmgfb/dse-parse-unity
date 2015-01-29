@@ -655,7 +655,9 @@ public class ParseTestBehavior : MonoBehaviour {
 		GUILayout.EndScrollView();
 
 		if(Button ("Execute Javascript", canExecuteJavascript)) {
+#if UNITY_WEBPLAYER
 			Application.ExternalEval(javascriptCode);
+#endif
 		}
 
 		GUILayout.EndVertical();

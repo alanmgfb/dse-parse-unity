@@ -44,7 +44,7 @@ public class ParseTestBehavior : MonoBehaviour {
 		}
 	}
 
-	private string userName = "alanmgUnity" + SystemInfo.deviceUniqueIdentifier;
+	private string userName = "alanmgUnity";
 	private string password = "n3verhardcode";
 	private string fbPerms = "public_profile,user_friends,publish_actions";
 
@@ -90,7 +90,7 @@ public class ParseTestBehavior : MonoBehaviour {
 			isParseLogged = true;
 		} else {
 			myUser = new ParseUser() {
-				Username = userName,
+				Username = userName + SystemInfo.deviceUniqueIdentifier,
 				Password = password
 			};
 			

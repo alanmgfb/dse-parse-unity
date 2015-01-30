@@ -44,6 +44,7 @@ public class ParseTestBehavior : MonoBehaviour {
 		}
 	}
 
+	private string userName = "alanmgUnity" + SystemInfo.deviceUniqueIdentifier;
 	private string password = "n3verhardcode";
 	private string fbPerms = "public_profile,user_friends,publish_actions";
 
@@ -89,7 +90,7 @@ public class ParseTestBehavior : MonoBehaviour {
 			isParseLogged = true;
 		} else {
 			myUser = new ParseUser() {
-				Username = SystemInfo.deviceUniqueIdentifier,
+				Username = userName,
 				Password = password
 			};
 			
@@ -104,7 +105,7 @@ public class ParseTestBehavior : MonoBehaviour {
 				Debug.Log("Le Name " + myUser["randomKey"]);
 				isParseLogged = true;
 			}
-		}		
+		}
 	}
 
 	//Calling this from a task will make Unity cry
@@ -233,6 +234,22 @@ public class ParseTestBehavior : MonoBehaviour {
 			Status("New Key: " + ParseUser.CurrentUser["randomKey"]);
 		}
 
+	}
+
+	private IEnumerator ModifySaveUser() {
+		Status("Modify and Save CurrentUser");
+		Status("Old Key " + ParseUser.CurrentUser["randomKey"]);
+		ParseUser.CurrentUser["randomKey"] = "inClient " + DateTime.Now.ToString();
+
+		Task saveTask = ParseUser.CurrentUser.SaveAsync();
+		while (!saveTask.IsCompleted) yield return null;
+
+		Status("Modified User Callback!");
+		if (saveTask.IsFaulted || saveTask.IsCanceled) {
+			Status(saveTask.Exception.ToString());
+		} else {
+			Status("Saved Key = " + ParseUser.CurrentUser["randomKey"]);
+		}
 	}
 
 	private void LoadParseData() {
@@ -591,6 +608,9 @@ public class ParseTestBehavior : MonoBehaviour {
 		GUILayout.BeginHorizontal();
 		if (Button("Fetch Latest userData", isParseLogged)) {
 			StartCoroutine("FetchLatestUser");
+		}
+		if (Button ("Modify and Save userData", isParseLogged)) {
+			StartCoroutine("ModifySaveUser");
 		}
 		if (Button("Load User Score", isParseLogged && !isScoreLoaded)) {
 			LoadParseData();

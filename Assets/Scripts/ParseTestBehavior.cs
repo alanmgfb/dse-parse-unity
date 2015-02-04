@@ -134,9 +134,6 @@ public class ParseTestBehavior : MonoBehaviour {
 	}
 
 	private void FacebookLogin() {
-
-		if (isFacebookLogged) return;
-
 		FB.Login(fbPerms, FacebookLoginCallback);
 	}
 
@@ -479,6 +476,15 @@ public class ParseTestBehavior : MonoBehaviour {
 		FB.AppEvents.LogPurchase(1.99f);
 		Status("Purchase logged");
 	}
+
+	private void MePermissions() {
+		Status("Requestion for Permissions!");
+		FB.API("me/permissions", Facebook.HttpMethod.GET, MePermissionsCallback);
+	}
+
+	private void MePermissionsCallback(FBResult result) {
+		Status(result.Text);
+	}
 	
 	private void ClearData() {
 
@@ -535,7 +541,7 @@ public class ParseTestBehavior : MonoBehaviour {
 	private void RenderLogin() {
 		//Login Options
 		GUILayout.BeginHorizontal();
-		if (Button("Login To Facebook", canLogIn && !isFacebookLogged)) {
+		if (Button("Login To Facebook", canLogIn & !isFacebookLogged)) {
 			FacebookLogin();
 		}
 
@@ -590,6 +596,12 @@ public class ParseTestBehavior : MonoBehaviour {
 
 		if (Button ("Log Purchase", isFacebookLogged)) {
 			LogPurchase();
+		}
+		GUILayout.EndHorizontal();
+
+		GUILayout.BeginHorizontal();
+		if (Button ("me/permissions", isFacebookLogged)) {
+			MePermissions();
 		}
 		GUILayout.EndHorizontal();
 

@@ -456,6 +456,24 @@ public class ParseTestBehavior : MonoBehaviour {
 		}
 	}
 
+	private IEnumerator QueryObjectWithDict() {
+		Status("Query Object With Dictionary!");
+
+		var query = ParseObject.GetQuery("DictionaryFieldTest");
+		var queryTask = query.FirstAsync();
+
+		while (!queryTask.IsCompleted) yield return null;
+
+		if(queryTask.IsFaulted || queryTask.IsCanceled) {
+			Status("Error querying object with dictionary: " + queryTask.Exception.Message);
+		} else {
+			Status("Querying object with Dictionary callback!");
+			ParseObject objectWithDict = queryTask.Result;
+			IDictionary<string, object> dict = objectWithDict.Get<Dictionary<string, object>>("dictionary");
+			Status(String.Format("Stored value on {0} Dictionary's key 'test': {1}", objectWithDict.ObjectId, dict["test"]));
+		}
+	}
+
 	private void GetDeepLink() {
 		Status ("Getting Deep Link...");
 		FB.GetDeepLink(DeepLinkCallback);
@@ -646,6 +664,9 @@ public class ParseTestBehavior : MonoBehaviour {
 		}
 		if (Button ("QueryObjectWithArray")) {
 			StartCoroutine("QueryObjectWithArray");
+		}
+		if (Button ("Query Object with Dict Property")) {
+			StartCoroutine("QueryObjectWithDict");
 		}
 		GUILayout.EndHorizontal();
 	}

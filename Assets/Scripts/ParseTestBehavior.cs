@@ -114,7 +114,12 @@ public class ParseTestBehavior : MonoBehaviour {
 		ParseUser.LogInAsync(SystemInfo.deviceUniqueIdentifier, password).ContinueWith(t => {
 			if (t.IsFaulted || t.IsCanceled) {
 				Status("Something went wrong when logging into Parse :/");
-				Debug.LogError(t.Exception);
+				foreach(Exception ie in t.Exception.InnerExceptions) {
+					ParseException pe = (ParseException)ie;
+					if (pe != null) {
+						Status(String.Format("Parse Exception code: {0}. Message: {1}", pe.Code, pe.Message));
+					}
+				}
 			} else {
 				Status("Parse Login Successful!");
 				isParseLogged = true;

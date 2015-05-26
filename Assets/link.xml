@@ -1,6 +1,6 @@
 <linker>
-	<assembly fullname="Parse.Unity">
-		<namespace fullname="Parse" preserve="all"/>
-		<namespace fullname="Parse.Internal" preserve="all"/>
-	</assembly>
+  <assembly fullname="UnityEngine">
+    <type fullname="UnityEngine.iOS.NotificationServices" preserve="all"/>
+    <type fullname="UnityEngine.NotificationServices" preserve="all"/>
+  </assembly>
 </linker>

@@ -69,6 +69,14 @@ public class ParseTestBehavior : MonoBehaviour {
 	private string inappUrl = "http://alanmg.dse.io/unity/opengraph/coin.html";
 	private string paymentAction = "create_subscription";
 
+	void Awake() {
+#if UNITY_IOS
+		NotificationServices.RegisterForRemoteNotificationTypes(RemoteNotificationType.Alert |
+		                                                        RemoteNotificationType.Badge |
+		                                                        RemoteNotificationType.Sound);
+#endif
+	}
+
 	void Start() {
 #if UNITY_ANDROID || UNITY_IPHONE
 		buttonHeight = 70;

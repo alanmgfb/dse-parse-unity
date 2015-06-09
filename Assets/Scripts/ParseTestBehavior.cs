@@ -278,6 +278,20 @@ public class ParseTestBehavior : MonoBehaviour {
 		}
 	}
 
+	private IEnumerator SaveParseInstallation() {
+		var installation = ParseInstallation.CurrentInstallation;
+		installation.Channels = new List<string> {"MPK"};
+		Task saveInstallation = installation.SaveAsync();
+		while(!saveInstallation.IsCompleted) yield return null;
+
+		Status("Installation Saved!");
+		if (saveInstallation.IsFaulted || saveInstallation.IsCanceled) {
+			Status (saveInstallation.Exception.ToString());
+		} else {
+			Status ("Installation Success!");
+		}
+	}
+
 	private IEnumerator SaveScore(int score, DateTime comparisonDate) {
 		ParseObject tempScore = new ParseObject("Score");
 		tempScore["score"] = score;
@@ -663,6 +677,10 @@ public class ParseTestBehavior : MonoBehaviour {
 		}
 		GUILayout.EndHorizontal();
 		GUILayout.BeginHorizontal();
+		if (Button("Save Parse Installation", isParseLogged)) {
+			StartCoroutine("SaveParseInstallation");
+		}
+
 		if (Button("ParseQuery GreaterThan Scores", isParseLogged)) {
 			ParseQueryScores();
 		}

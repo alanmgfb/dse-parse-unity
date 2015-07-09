@@ -278,6 +278,18 @@ public class ParseTestBehavior : MonoBehaviour {
 		}
 	}
 
+	private IEnumerator SaveParseOpenEvent() {
+		Task openTask = ParseAnalytics.TrackAppOpenedAsync();
+		while(!openTask.IsCompleted) yield return null;
+		
+		Status("Parse App Opened Saved!");
+		if (openTask.IsFaulted || openTask.IsCanceled) {
+			Status (openTask.Exception.ToString());
+		} else {
+			Status ("Parse App Opened Event Saving Success!");
+		}
+	}
+
 	private IEnumerator SaveParseInstallation() {
 		var installation = ParseInstallation.CurrentInstallation;
 		installation.Channels = new List<string> {"MPK"};
@@ -289,6 +301,20 @@ public class ParseTestBehavior : MonoBehaviour {
 			Status (saveInstallation.Exception.ToString());
 		} else {
 			Status ("Installation Success!");
+		}
+	}
+
+	private IEnumerator SaveCustomParseEvent() {
+		var dimensions = new Dictionary<string, string> {
+		{"priceRange", "0-9000"}
+		};
+
+		Task saveEvent = ParseAnalytics.TrackEventAsync("customEvent", dimensions);
+		while (!saveEvent.IsCompleted) yield return null;
+
+		Status ("Custom Event Saved!");
+		if (saveEvent.IsFaulted || saveEvent.IsCanceled) {
+			Status(saveEvent.Exception.ToString());
 		}
 	}
 
@@ -374,7 +400,6 @@ public class ParseTestBehavior : MonoBehaviour {
 
 	private void SendFriendRequest() {
 		Status("Sending friend request...");
-
 		FB.AppRequest("Request Message!", new String[]{otherUserId},null,null,10,"","Request Title!", FriendRequestCallback);
 	}
 
@@ -677,10 +702,17 @@ public class ParseTestBehavior : MonoBehaviour {
 		}
 		GUILayout.EndHorizontal();
 		GUILayout.BeginHorizontal();
+		if (Button("ParseAppOpened")) {
+			StartCoroutine("SaveParseOpenEvent");
+		}
+
+
 		if (Button("Save Parse Installation", isParseLogged)) {
 			StartCoroutine("SaveParseInstallation");
 		}
-
+		if (Button ("Save Custom Event")) {
+			StartCoroutine("SaveCustomParseEvent");
+		}
 		if (Button("ParseQuery GreaterThan Scores", isParseLogged)) {
 			ParseQueryScores();
 		}

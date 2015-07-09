@@ -69,6 +69,12 @@ public class ParseTestBehavior : MonoBehaviour {
 	private string inappUrl = "http://alanmg.dse.io/unity/opengraph/coin.html";
 	private string paymentAction = "create_subscription";
 
+	private string Username {
+		get {
+			return userName + SystemInfo.deviceUniqueIdentifier;
+		}
+	}
+
 	void Awake() {
 #if UNITY_IOS
 		NotificationServices.RegisterForRemoteNotificationTypes(RemoteNotificationType.Alert |
@@ -98,7 +104,7 @@ public class ParseTestBehavior : MonoBehaviour {
 			isParseLogged = true;
 		} else {
 			myUser = new ParseUser() {
-				Username = userName + SystemInfo.deviceUniqueIdentifier,
+				Username = Username,
 				Password = password
 			};
 			
@@ -119,7 +125,7 @@ public class ParseTestBehavior : MonoBehaviour {
 	//Calling this from a task will make Unity cry
 	private void ParseLogin() {
 
-		ParseUser.LogInAsync(SystemInfo.deviceUniqueIdentifier, password).ContinueWith(t => {
+		ParseUser.LogInAsync(Username, password).ContinueWith(t => {
 			if (t.IsFaulted || t.IsCanceled) {
 				Status("Something went wrong when logging into Parse :/");
 				foreach(Exception ie in t.Exception.InnerExceptions) {
@@ -284,9 +290,20 @@ public class ParseTestBehavior : MonoBehaviour {
 		
 		Status("Parse App Opened Saved!");
 		if (openTask.IsFaulted || openTask.IsCanceled) {
+			ParseException pex = openTask.Exception.InnerException as ParseException;
+			if (pex == null) {
+				Status("No ParseException Included");
+			} else {
+				Status ("ParseException Code " + pex.Code);
+				
+				if (pex.Code == ParseException.ErrorCode.InvalidSessionToken) {
+					Status ("Failed because of Invalid Session Token");
+				}
+			}
+			Status ("=== Logging Exception ===");
 			Status (openTask.Exception.ToString());
 		} else {
-			Status ("Parse App Opened Event Saving Success!");
+			Status ("AppOpened Success!");
 		}
 	}
 
@@ -298,6 +315,17 @@ public class ParseTestBehavior : MonoBehaviour {
 
 		Status("Installation Saved!");
 		if (saveInstallation.IsFaulted || saveInstallation.IsCanceled) {
+			ParseException pex = saveInstallation.Exception.InnerException as ParseException;
+			if (pex == null) {
+				Status("No ParseException Included");
+			} else {
+				Status ("ParseException Code " + pex.Code);
+
+				if (pex.Code == ParseException.ErrorCode.InvalidSessionToken) {
+					Status ("Failed because of Invalid Session Token");
+				}
+			}
+			Status ("=== Logging Exception ===");
 			Status (saveInstallation.Exception.ToString());
 		} else {
 			Status ("Installation Success!");
@@ -314,6 +342,8 @@ public class ParseTestBehavior : MonoBehaviour {
 
 		Status ("Custom Event Saved!");
 		if (saveEvent.IsFaulted || saveEvent.IsCanceled) {
+			Status("OK THIS DIDN'T WORK");
+			Debug.Log(saveEvent.Exception.InnerException.ToString());
 			Status(saveEvent.Exception.ToString());
 		}
 	}
@@ -557,9 +587,12 @@ public class ParseTestBehavior : MonoBehaviour {
 	}
 	
 	private void ClearData() {
-
+		Debug.Log("Logging out Parse User");
 		ParseUser.LogOut();
-		FB.Logout();
+		Debug.Log("Logging out FB User");
+		if (isFacebookLogged) {
+			FB.Logout();
+		}
 		PlayerPrefs.DeleteAll();
 
 		isFacebookLogged = false;
